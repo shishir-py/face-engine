@@ -1,0 +1,65 @@
+# FaceMatch AI Configuration
+# ──────────────────────────────────────────────
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+
+paths:
+  image_repository: "data/people"
+  faiss_index: "data/index"
+  database: "data/db/facematch.db"
+  upload_temp: "data/uploads"
+
+face_detection:
+  # InsightFace model pack (buffalo_l = best accuracy, buffalo_s = faster)
+  model_pack: "buffalo_l"
+  # Minimum face size in pixels (width or height)
+  min_face_size: 20
+  # Detection confidence threshold (0.0 - 1.0)
+  detection_threshold: 0.5
+  # Maximum faces to detect per image (0 = unlimited)
+  max_faces_per_image: 0
+
+face_recognition:
+  # Embedding dimension (512 for ArcFace)
+  embedding_dim: 512
+  # Whether to align/normalize faces before embedding
+  align_faces: true
+
+search:
+  # Number of candidates to return per face
+  default_top_k: 10
+  # Maximum candidates allowed per request
+  max_top_k: 100
+  # FAISS index type: "flat" (exact) or "ivf" (approximate, faster for large repos)
+  index_type: "flat"
+  # Number of IVF clusters (only for ivf index type)
+  ivf_clusters: 100
+  # Number of probes for IVF search (higher = more accurate, slower)
+  ivf_nprobe: 10
+
+thresholds:
+  # Cosine similarity thresholds for match classification
+  high_confidence: 0.55
+  possible_match: 0.40
+  low_confidence: 0.30
+  # Below low_confidence = no_match
+
+enrollment:
+  # Batch size for processing images during enrollment
+  batch_size: 32
+  # Skip images that have already been processed
+  skip_existing: true
+  # Supported image extensions
+  supported_extensions:
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".bmp"
+    - ".webp"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"

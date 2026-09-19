@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Data directories (user-specific)
+data/db/
+data/index/
+data/uploads/
+data/people/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# InsightFace model cache
+models/
+.insightface/

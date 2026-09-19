@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  facematch:
+    build: .
+    container_name: facematch-ai
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist database and FAISS index across restarts
+      - facematch-data:/app/data/db
+      - facematch-index:/app/data/index
+      # Mount your local image repository (edit the path below)
+      # - /path/to/your/images:/app/data/people
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/admin/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+volumes:
+  facematch-data:
+  facematch-index:

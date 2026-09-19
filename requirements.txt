@@ -1,0 +1,31 @@
+# Core API framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Face detection & recognition
+insightface==0.7.3
+onnxruntime==1.20.1
+# onnx (pulled in by insightface) >=1.18 needs the float4 types added in ml-dtypes 0.5
+ml-dtypes>=0.5.0
+
+# Vector search
+faiss-cpu==1.9.0.post1
+
+# Image processing
+opencv-python-headless==4.10.0.84
+Pillow==11.1.0
+numpy>=1.24.0,<2.0.0; python_version < "3.12"
+numpy>=2.1.0,<2.5.0; python_version >= "3.12"
+
+# Database
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+
+# Configuration
+pyyaml==6.0.2
+pydantic-settings==2.7.1
+
+# Utilities
+python-dateutil==2.9.0
+uuid6==2024.7.10

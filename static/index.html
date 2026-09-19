@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceMatch AI</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #242836;
+            --border: #2e3347;
+            --text: #e4e6f0;
+            --text2: #9399b2;
+            --accent: #6c8aff;
+            --accent2: #4f6fdf;
+            --green: #4ade80;
+            --yellow: #facc15;
+            --orange: #fb923c;
+            --red: #f87171;
+            --purple: #c084fc;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .header-stats .stat-value {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text2);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Upload Area */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--surface);
+            margin-bottom: 24px;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(108, 138, 255, 0.05);
+        }
+
+        .upload-zone .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+        .upload-zone p { color: var(--text2); font-size: 14px; }
+        .upload-zone .filename { color: var(--accent); font-weight: 500; margin-top: 8px; }
+
+        input[type="file"] { display: none; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover { background: var(--border); }
+
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--red);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        /* Search options */
+        .search-options {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-options label {
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .search-options input[type="number"] {
+            width: 70px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        /* Mode toggle */
+        .mode-toggle {
+            display: inline-flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .mode-toggle button {
+            padding: 6px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text2);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-toggle button.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .mode-toggle button:hover:not(.active) {
+            background: var(--surface2);
+        }
+
+        /* Preview */
+        .preview-container {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .preview-image {
+            position: relative;
+            max-width: 500px;
+            flex-shrink: 0;
+        }
+
+        .preview-image img {
+            max-width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .preview-image canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: var(--radius);
+        }
+
+        /* Results */
+        .results-section { flex: 1; min-width: 300px; }
+
+        .face-result {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .face-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .face-result-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .match-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .match-rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .match-info { flex: 1; min-width: 0; }
+
+        .match-info .person-id {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .match-info .match-detail {
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .match-info .file-path {
+            font-size: 11px;
+            color: var(--text2);
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+
+        .match-score {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .match-score .score {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-high { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+        .badge-possible { background: rgba(250, 204, 21, 0.15); color: var(--yellow); }
+        .badge-low { background: rgba(251, 146, 60, 0.15); color: var(--orange); }
+        .badge-none { background: rgba(248, 113, 113, 0.15); color: var(--red); }
+        .badge-auto { background: rgba(192, 132, 252, 0.15); color: var(--purple); }
+
+        .color-high { color: var(--green); }
+        .color-possible { color: var(--yellow); }
+        .color-low { color: var(--orange); }
+        .color-none { color: var(--red); }
+
+        .rank-high { background: rgba(74, 222, 128, 0.2); color: var(--green); }
+        .rank-possible { background: rgba(250, 204, 21, 0.2); color: var(--yellow); }
+        .rank-low { background: rgba(251, 146, 60, 0.2); color: var(--orange); }
+        .rank-none { background: rgba(248, 113, 113, 0.2); color: var(--red); }
+
+        /* Status */
+        .status-bar {
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            color: var(--text2);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Enroll panel */
+        .enroll-form {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        /* People & source grid */
+        .people-grid, .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .person-card, .source-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .person-card h4, .source-card h4 { font-size: 15px; margin-bottom: 6px; }
+        .person-card .meta, .source-card .meta { font-size: 12px; color: var(--text2); }
+
+        .source-card .source-path {
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--text2);
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .source-card .source-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .source-card .source-actions .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .no-faces-msg {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            color: var(--text2);
+        }
+
+        .no-faces-msg .icon { font-size: 36px; margin-bottom: 8px; opacity: 0.5; }
+
+        .meta-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--text2);
+            flex-wrap: wrap;
+        }
+
+        .section-divider {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 0 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Add source form */
+        .add-source-form {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .add-source-form.visible { display: block; }
+
+        .add-source-form .form-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .add-source-form .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+
+        /* Directory Picker Modal */
+        .dir-picker-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dir-picker-overlay.hidden { display: none; }
+
+        .dir-picker {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 600px;
+            max-width: 95vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .dir-picker-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dir-picker-header h3 { font-size: 16px; }
+
+        .dir-picker-breadcrumb {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            background: var(--surface2);
+        }
+
+        .dir-picker-breadcrumb .crumb {
+            color: var(--accent);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .dir-picker-breadcrumb .crumb:hover { background: rgba(108,138,255,0.15); }
+        .dir-picker-breadcrumb .crumb.current { color: var(--text); cursor: default; }
+        .dir-picker-breadcrumb .crumb.current:hover { background: none; }
+        .dir-picker-breadcrumb .sep { color: var(--text2); }
+
+        .dir-picker-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            min-height: 200px;
+            max-height: 400px;
+        }
+
+        .dir-picker-body .dir-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        .dir-picker-body .dir-item:hover { background: var(--surface2); }
+        .dir-picker-body .dir-item.selected { background: rgba(108,138,255,0.15); border: 1px solid var(--accent); }
+
+        .dir-picker-body .dir-item .dir-icon { font-size: 18px; flex-shrink: 0; }
+        .dir-picker-body .dir-item .dir-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dir-picker-body .dir-item .dir-meta { font-size: 11px; color: var(--text2); flex-shrink: 0; }
+
+        .dir-picker-body .dir-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text2);
+        }
+
+        .dir-picker-info {
+            padding: 10px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text2);
+            background: var(--surface2);
+        }
+
+        .dir-picker-info .suggested-layout {
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .dir-picker-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dir-picker-footer .selected-path {
+            flex: 1;
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--accent);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Image Preview Lightbox */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+
+        .lightbox-overlay.hidden { display: none; }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lightbox-content img {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: -8px;
+            width: 36px;
+            height: 36px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 2001;
+        }
+
+        .lightbox-close:hover { background: var(--red); color: #fff; }
+
+        .lightbox-info {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--text2);
+            font-size: 13px;
+        }
+
+        .lightbox-info .lightbox-name {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .lightbox-info .lightbox-path {
+            font-family: monospace;
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        .lightbox-info .lightbox-score {
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        /* Threshold slider */
+        .threshold-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .threshold-group input[type="range"] {
+            width: 100px;
+            accent-color: var(--accent);
+        }
+
+        .threshold-value {
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 38px;
+            text-align: center;
+        }
+
+        /* Download bar */
+        .download-bar {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+        }
+
+        .download-bar.visible { display: flex; }
+
+        .download-bar .download-info {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .download-bar .download-info strong {
+            color: var(--text);
+        }
+
+        .download-bar input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 13px;
+            width: 180px;
+        }
+
+        .btn-download {
+            background: var(--green);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .btn-download:hover { opacity: 0.9; }
+        .btn-download:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Make match cards clickable for image preview */
+        .match-card.clickable { cursor: pointer; transition: border 0.2s, background 0.2s; }
+        .match-card.clickable:hover { background: rgba(108,138,255,0.1); border: 1px solid var(--accent); }
+
+        /* Live Camera Scan */
+        .camera-container {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .camera-container.active { display: block; }
+
+        .camera-layout {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .camera-feed {
+            position: relative;
+            flex-shrink: 0;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .camera-feed video {
+            width: 100%;
+            border-radius: var(--radius);
+            border: 2px solid var(--accent);
+            background: #000;
+        }
+
+        .camera-feed canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: var(--radius);
+            pointer-events: none;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .camera-controls .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .camera-controls .status-dot.scanning { background: var(--green); }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .camera-results {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .camera-results h4 {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--text2);
+        }
+
+        .camera-match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .camera-match-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border 0.2s, transform 0.2s;
+        }
+
+        .camera-match-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+        .camera-match-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: var(--surface2);
+        }
+
+        .camera-match-card .card-info {
+            padding: 8px;
+        }
+
+        .camera-match-card .card-info .card-name {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .camera-match-card .card-info .card-score {
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>
+        <div class="logo">&#x1F50D;</div>
+        FaceMatch AI
+    </h1>
+    <div class="header-stats" id="headerStats">
+        <span>People: <span class="stat-value" id="statPeople">-</span></span>
+        <span>Faces: <span class="stat-value" id="statFaces">-</span></span>
+        <span>Index: <span class="stat-value" id="statIndex">-</span></span>
+        <span>Sources: <span class="stat-value" id="statSources">-</span></span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('search')">Face Search</button>
+        <button class="tab" onclick="switchTab('enroll')">Enroll Person</button>
+        <button class="tab" onclick="switchTab('sources')">Sources</button>
+        <button class="tab" onclick="switchTab('repository')">People</button>
+    </div>
+
+    <!-- SEARCH PANEL -->
+    <div id="panel-search" class="panel active">
+        <div class="upload-zone" id="searchDropZone" onclick="document.getElementById('searchFileInput').click()">
+            <div class="icon">&#x1F4F7;</div>
+            <p><strong>Drop an image here</strong> or click to browse</p>
+            <p>Supports JPG, PNG, BMP, WebP</p>
+            <div class="filename" id="searchFileName"></div>
+        </div>
+        <input type="file" id="searchFileInput" accept="image/*" onchange="handleSearchFile(this)">
+
+        <div class="search-options">
+            <label>Mode:</label>
+            <div class="mode-toggle" id="modeToggle">
+                <button onclick="setSearchMode('person')">Person</button>
+                <button class="active" onclick="setSearchMode('image')">Image</button>
+                <button onclick="setSearchMode('both')">Both</button>
+            </div>
+            <label>Top K: <input type="number" id="topK" value="20" min="1" max="100"></label>
+            <div class="threshold-group">
+                <label>Min Match:</label>
+                <input type="range" id="thresholdSlider" min="0" max="100" value="0" oninput="updateThreshold(this.value)">
+                <span class="threshold-value" id="thresholdValue">0%</span>
+            </div>
+            <button class="btn btn-primary" id="searchBtn" onclick="runSearch()" disabled>Search</button>
+            <button class="btn btn-secondary" id="cameraBtn" onclick="toggleCamera()" style="margin-left:auto;">&#x1F4F7; Scan Now</button>
+        </div>
+
+        <!-- Live Camera -->
+        <div class="camera-container" id="cameraContainer">
+            <div class="camera-layout">
+                <div class="camera-feed">
+                    <video id="cameraVideo" autoplay playsinline muted></video>
+                    <canvas id="cameraOverlay"></canvas>
+                    <div class="camera-controls">
+                        <div class="status-dot" id="cameraDot"></div>
+                        <span id="cameraStatus" style="font-size:13px;color:var(--text2);">Camera ready</span>
+                        <div style="flex:1;"></div>
+                        <button class="btn btn-secondary" onclick="captureAndSearch()" style="padding:6px 14px;font-size:13px;">&#x1F50D; Capture</button>
+                        <button class="btn btn-danger" onclick="toggleCamera()" style="padding:6px 14px;font-size:13px;">Stop</button>
+                    </div>
+                </div>
+                <div class="camera-results">
+                    <h4>&#x1F50E; Live Matches</h4>
+                    <div class="camera-match-grid" id="cameraMatchGrid">
+                        <p style="color:var(--text2);font-size:13px;grid-column:1/-1;">Point camera at a face to scan...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="searchStatus" class="status-bar" style="display:none;"></div>
+
+        <!-- Download Bar -->
+        <div class="download-bar" id="downloadBar">
+            <div class="download-info">
+                <strong id="downloadCount">0</strong> match(es) above threshold
+            </div>
+            <input type="text" id="downloadFolderName" placeholder="Folder name" value="matched_faces">
+            <button class="btn btn-download" id="downloadBtn" onclick="downloadMatches()">&#x2B07; Download ZIP</button>
+        </div>
+
+        <div class="preview-container" id="resultsArea" style="display:none;">
+            <div class="preview-image" id="previewArea">
+                <img id="previewImg" src="">
+                <canvas id="overlayCanvas"></canvas>
+            </div>
+            <div class="results-section" id="resultsCards"></div>
+        </div>
+    </div>
+
+    <!-- ENROLL PANEL -->
+    <div id="panel-enroll" class="panel">
+        <div class="enroll-form">
+            <h3 style="margin-bottom:16px;">Enroll a New Person</h3>
+            <div class="form-group">
+                <label>Person ID (unique identifier)</label>
+                <input type="text" id="enrollPersonId" placeholder="e.g. person_042">
+            </div>
+            <div class="form-group">
+                <label>Display Name (optional)</label>
+                <input type="text" id="enrollName" placeholder="e.g. Jane Smith">
+            </div>
+            <div class="upload-zone" id="enrollDropZone" onclick="document.getElementById('enrollFileInput').click()" style="padding:32px;">
+                <div class="icon">&#x1F5BC;</div>
+                <p>Drop images here or click to browse</p>
+                <div class="filename" id="enrollFileNames"></div>
+            </div>
+            <input type="file" id="enrollFileInput" accept="image/*" multiple onchange="handleEnrollFiles(this)">
+            <button class="btn btn-primary" id="enrollBtn" onclick="runEnroll()" disabled>Enroll</button>
+            <div id="enrollStatus" class="status-bar" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- SOURCES PANEL -->
+    <div id="panel-sources" class="panel">
+        <div style="display:flex; gap:12px; margin-bottom:16px; align-items:center;">
+            <h3>Image Source Directories</h3>
+            <button class="btn btn-secondary" onclick="loadSources()">Refresh</button>
+            <button class="btn btn-primary" onclick="toggleAddSource()">+ Add Source</button>
+        </div>
+
+        <div class="add-source-form" id="addSourceForm">
+            <h4 style="margin-bottom:12px;">Add Image Directory</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Directory Path</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="sourcePath" placeholder="/path/to/image/directory" style="flex:1;">
+                        <button class="btn btn-secondary" onclick="openDirPicker()" style="white-space:nowrap;">&#x1F4C2; Browse</button>
+                    </div>
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>Layout</label>
+                    <select id="sourceLayout">
+                        <option value="auto">Auto-detect</option>
+                        <option value="structured">Structured (person/folder)</option>
+                        <option value="flat">Flat (all images)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="max-width:160px;">
+                    <label>Alias (optional)</label>
+                    <input type="text" id="sourceAlias" placeholder="e.g. Photos 2024">
+                </div>
+                <button class="btn btn-primary" onclick="addSource()" style="height:42px;">Scan &amp; Add</button>
+            </div>
+            <div id="addSourceStatus" class="status-bar" style="display:none;"></div>
+        </div>
+
+        <!-- Directory Picker Modal -->
+        <div class="dir-picker-overlay hidden" id="dirPickerOverlay" onclick="if(event.target===this)closeDirPicker()">
+            <div class="dir-picker">
+                <div class="dir-picker-header">
+                    <h3>&#x1F4C2; Select Directory</h3>
+                    <button class="btn btn-secondary" onclick="closeDirPicker()" style="padding:4px 10px;">&#x2715;</button>
+                </div>
+                <div class="dir-picker-breadcrumb" id="dirBreadcrumb"></div>
+                <div style="padding:8px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px;">
+                    <input type="text" id="dirQuickPath" placeholder="Type or paste a path and press Enter" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:13px;font-family:monospace;" onkeydown="if(event.key==='Enter')browseTo(this.value)">
+                    <button class="btn btn-secondary" onclick="browseTo(document.getElementById('dirQuickPath').value)" style="padding:6px 12px;font-size:12px;">Go</button>
+                </div>
+                <div class="dir-picker-body" id="dirPickerBody">
+                    <div class="dir-loading"><span class="loading"></span> Loading...</div>
+                </div>
+                <div class="dir-picker-info" id="dirPickerInfo"></div>
+                <div class="dir-picker-footer">
+                    <div class="selected-path" id="dirSelectedPath">No directory selected</div>
+                    <button class="btn btn-secondary" onclick="closeDirPicker()">Cancel</button>
+                    <button class="btn btn-primary" id="dirSelectBtn" onclick="confirmDirSelection()">Select</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sourcesGrid" class="sources-grid">
+            <p style="color:var(--text2);padding:24px;">No source directories registered. Click "+ Add Source" to add image directories.</p>
+        </div>
+    </div>
+
+    <!-- PEOPLE/REPOSITORY PANEL -->
+    <div id="panel-repository" class="panel">
+        <div style="display:flex; gap:12px; margin-bottom:16px; align-items:center;">
+            <h3>Enrolled People</h3>
+            <button class="btn btn-secondary" onclick="loadPeople()">Refresh</button>
+            <button class="btn btn-primary" onclick="scanRepository()">Scan Default Repository</button>
+        </div>
+        <div id="scanStatus" class="status-bar" style="display:none;"></div>
+        <div id="peopleGrid" class="people-grid"></div>
+    </div>
+</div>
+
+<!-- Image Preview Lightbox -->
+<div class="lightbox-overlay hidden" id="lightboxOverlay" onclick="closeLightbox()">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+        <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+        <img id="lightboxImg" src="" alt="Preview">
+        <div class="lightbox-info">
+            <div class="lightbox-name" id="lightboxName"></div>
+            <div class="lightbox-path" id="lightboxPath"></div>
+            <div class="lightbox-score" id="lightboxScore"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let searchFile = null;
+    let enrollFiles = [];
+    let searchMode = 'image';
+    let dirPickerPath = '/';
+    let dirPickerSelected = null;
+    let lastSearchResults = null;  // Store results for filtering & download
+    let matchThreshold = 0;        // Minimum similarity % to show
+    const API = '';
+
+    // Tab switching
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+        document.getElementById(`panel-${tab}`).classList.add('active');
+        if (tab === 'repository') loadPeople();
+        if (tab === 'sources') loadSources();
+    }
+
+    // Search mode
+    function setSearchMode(mode) {
+        searchMode = mode;
+        document.querySelectorAll('#modeToggle button').forEach(b => b.classList.remove('active'));
+        document.querySelector(`#modeToggle button[onclick="setSearchMode('${mode}')"]`).classList.add('active');
+    }
+
+    // Drag and drop
+    function setupDrop(zoneId, callback) {
+        const zone = document.getElementById(zoneId);
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            callback(e.dataTransfer.files);
+        });
+    }
+
+    setupDrop('searchDropZone', files => { if (files.length > 0) setSearchFile(files[0]); });
+    setupDrop('enrollDropZone', files => { setEnrollFiles(files); });
+
+    function setSearchFile(file) {
+        searchFile = file;
+        document.getElementById('searchFileName').textContent = file.name;
+        document.getElementById('searchBtn').disabled = false;
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('previewImg').src = e.target.result; };
+        reader.readAsDataURL(file);
+    }
+
+    function handleSearchFile(input) {
+        if (input.files.length > 0) setSearchFile(input.files[0]);
+    }
+
+    function setEnrollFiles(files) {
+        enrollFiles = Array.from(files);
+        document.getElementById('enrollFileNames').textContent = enrollFiles.map(f => f.name).join(', ');
+        document.getElementById('enrollBtn').disabled = enrollFiles.length === 0;
+    }
+
+    function handleEnrollFiles(input) {
+        setEnrollFiles(input.files);
+    }
+
+    // Search
+    async function runSearch() {
+        if (!searchFile) return;
+
+        const btn = document.getElementById('searchBtn');
+        const status = document.getElementById('searchStatus');
+        btn.disabled = true;
+        status.style.display = 'block';
+        status.innerHTML = '<span class="loading"></span> Detecting faces and searching...';
+        document.getElementById('resultsArea').style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('image', searchFile);
+        formData.append('top_k', document.getElementById('topK').value);
+        formData.append('search_mode', searchMode);
+
+        try {
+            const resp = await fetch(`${API}/face/search`, { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                status.innerHTML = `Error: ${data.detail || 'Search failed'}`;
+                btn.disabled = false;
+                return;
+            }
+
+            displayResults(data);
+            status.style.display = 'none';
+        } catch (err) {
+            status.innerHTML = `Error: ${err.message}`;
+        }
+        btn.disabled = false;
+    }
+
+    function displayResults(data) {
+        lastSearchResults = data;  // Store for filtering & download
+        const area = document.getElementById('resultsArea');
+        const cards = document.getElementById('resultsCards');
+        area.style.display = 'flex';
+        const minSim = matchThreshold / 100;
+
+        const img = document.getElementById('previewImg');
+        img.onload = () => drawFaceBoxes(data.results, img);
+        if (img.complete) drawFaceBoxes(data.results, img);
+
+        if (data.faces_detected === 0) {
+            cards.innerHTML = `
+                <div class="no-faces-msg">
+                    <div class="icon">&#x1F645;</div>
+                    <p>No faces detected in this image</p>
+                    <p style="font-size:12px;margin-top:8px;">Try a clearer photo with visible faces</p>
+                </div>`;
+            document.getElementById('downloadBar').classList.remove('visible');
+            return;
+        }
+
+        let html = `<div class="meta-bar">
+            <span>Detected <strong>${data.faces_detected}</strong> face(s)</span>
+            <span>${data.processing_time_ms.toFixed(0)}ms</span>
+            <span>Mode: <strong>${data.search_mode}</strong></span>
+            <span>ID: ${data.request_id}</span>
+            ${matchThreshold > 0 ? `<span>Filter: &ge;${matchThreshold}%</span>` : ''}
+        </div>`;
+
+        for (const face of data.results) {
+            html += `<div class="face-result">
+                <div class="face-result-header">
+                    <h3>Face ${face.face_index + 1}</h3>
+                    <span style="font-size:12px;color:var(--text2)">
+                        Detection: ${(face.detection_confidence * 100).toFixed(1)}%
+                    </span>
+                </div>`;
+
+            // Person-level results (filtered by threshold)
+            if (face.candidates && face.candidates.length > 0) {
+                const filtered = face.candidates.filter(c => c.similarity >= minSim);
+                if (data.search_mode === 'both' && filtered.length > 0) {
+                    html += `<div class="section-divider">Person Matches</div>`;
+                }
+                for (const c of filtered) {
+                    html += renderPersonMatch(c);
+                }
+            }
+
+            // Image-level results (filtered by threshold)
+            if (face.image_matches && face.image_matches.length > 0) {
+                const filtered = face.image_matches.filter(m => m.similarity >= minSim);
+                if (data.search_mode === 'both' && filtered.length > 0) {
+                    html += `<div class="section-divider">Image Matches</div>`;
+                }
+                let rank = 0;
+                for (const m of filtered) {
+                    rank++;
+                    html += renderImageMatch(m, rank);
+                }
+            }
+
+            // No results after filtering
+            const hasPersonResults = face.candidates && face.candidates.filter(c => c.similarity >= minSim).length > 0;
+            const hasImageResults = face.image_matches && face.image_matches.filter(m => m.similarity >= minSim).length > 0;
+
+            if (!hasPersonResults && !hasImageResults) {
+                if (matchThreshold > 0) {
+                    html += `<p style="color:var(--text2);font-size:13px;text-align:center;padding:12px;">No matches above ${matchThreshold}% threshold</p>`;
+                } else {
+                    html += `<p style="color:var(--text2);font-size:13px;text-align:center;padding:12px;">No matches found</p>`;
+                }
+            }
+
+            html += `</div>`;
+        }
+
+        cards.innerHTML = html;
+        updateDownloadBar();
+    }
+
+    function renderPersonMatch(c) {
+        const statusClass = getStatusClass(c.match_status);
+        const pct = (c.similarity * 100).toFixed(1);
+        const labelBadge = c.is_labeled === false ? ' <span class="badge badge-auto">auto</span>' : '';
+        return `
+            <div class="match-card">
+                <div class="match-rank rank-${statusClass}">${c.rank}</div>
+                <div class="match-info">
+                    <div class="person-id">${c.name || c.person_id}${labelBadge}</div>
+                    <div class="match-detail">
+                        ${c.matching_images} image match(es)
+                        <span class="badge badge-${statusClass}">${c.match_status.replace('_', ' ')}</span>
+                    </div>
+                </div>
+                <div class="match-score">
+                    <div class="score color-${statusClass}">${pct}%</div>
+                </div>
+            </div>`;
+    }
+
+    function renderImageMatch(m, rank) {
+        const sim = m.similarity;
+        const statusClass = sim >= 0.55 ? 'high' : sim >= 0.40 ? 'possible' : sim >= 0.30 ? 'low' : 'none';
+        const pct = (sim * 100).toFixed(1);
+        const labelBadge = m.is_labeled === false ? ' <span class="badge badge-auto">auto</span>' : '';
+        const personLabel = m.person_name || m.person_id || 'Unknown';
+        const filePath = m.absolute_path || m.image_path;
+        const escapedPath = filePath.replace(/'/g, "\\'");
+        return `
+            <div class="match-card clickable" onclick="openLightbox('${escapedPath}', '${personLabel.replace(/'/g, "\\'")}', '${pct}%', '${statusClass}')">
+                <div class="match-rank rank-${statusClass}">${rank}</div>
+                <div class="match-info">
+                    <div class="person-id">${personLabel}${labelBadge}</div>
+                    <div class="file-path" title="${filePath}">${filePath}</div>
+                    ${m.source_dir ? `<div class="match-detail">Source: ${m.source_dir}</div>` : ''}
+                </div>
+                <div class="match-score">
+                    <div class="score color-${statusClass}">${pct}%</div>
+                </div>
+            </div>`;
+    }
+
+    function getStatusClass(status) {
+        if (status === 'high_confidence') return 'high';
+        if (status === 'possible_match') return 'possible';
+        if (status === 'low_confidence') return 'low';
+        return 'none';
+    }
+
+    const FACE_COLORS = ['#6c8aff', '#4ade80', '#facc15', '#fb923c', '#f87171', '#c084fc'];
+
+    function drawFaceBoxes(results, img) {
+        const canvas = document.getElementById('overlayCanvas');
+        canvas.width = img.clientWidth;
+        canvas.height = img.clientHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const scaleX = img.clientWidth / img.naturalWidth;
+        const scaleY = img.clientHeight / img.naturalHeight;
+
+        for (const face of results) {
+            const bb = face.bounding_box;
+            const color = FACE_COLORS[face.face_index % FACE_COLORS.length];
+
+            const x = bb.x1 * scaleX;
+            const y = bb.y1 * scaleY;
+            const w = bb.width * scaleX;
+            const h = bb.height * scaleY;
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, w, h);
+
+            const label = `Face ${face.face_index + 1}`;
+            ctx.font = '12px -apple-system, sans-serif';
+            const tw = ctx.measureText(label).width;
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y - 18, tw + 8, 18);
+            ctx.fillStyle = '#fff';
+            ctx.fillText(label, x + 4, y - 5);
+        }
+    }
+
+    // Enrollment
+    async function runEnroll() {
+        const personId = document.getElementById('enrollPersonId').value.trim();
+        if (!personId) { alert('Please enter a Person ID.'); return; }
+        if (enrollFiles.length === 0) { alert('Please select images.'); return; }
+
+        const btn = document.getElementById('enrollBtn');
+        const status = document.getElementById('enrollStatus');
+        btn.disabled = true;
+        status.style.display = 'block';
+        status.style.color = 'var(--text2)';
+        status.innerHTML = '<span class="loading"></span> Enrolling...';
+
+        const formData = new FormData();
+        formData.append('person_id', personId);
+        const name = document.getElementById('enrollName').value.trim();
+        if (name) formData.append('name', name);
+        for (const f of enrollFiles) formData.append('images', f);
+
+        try {
+            const resp = await fetch(`${API}/enrollment/person`, { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                status.innerHTML = `Enrolled <strong>${data.person_id}</strong>: ${data.faces_detected} face(s) from ${data.images_processed} image(s)`;
+                status.style.color = 'var(--green)';
+                loadStats();
+            } else {
+                status.innerHTML = `Error: ${data.detail || 'Enrollment failed'}`;
+                status.style.color = 'var(--red)';
+            }
+        } catch (err) {
+            status.innerHTML = `Error: ${err.message}`;
+            status.style.color = 'var(--red)';
+        }
+        btn.disabled = false;
+    }
+
+    // Source directory management
+    function toggleAddSource() {
+        const form = document.getElementById('addSourceForm');
+        form.classList.toggle('visible');
+    }
+
+    async function addSource() {
+        const path = document.getElementById('sourcePath').value.trim();
+        if (!path) { alert('Please enter a directory path.'); return; }
+
+        const layout = document.getElementById('sourceLayout').value;
+        const alias = document.getElementById('sourceAlias').value.trim();
+        const status = document.getElementById('addSourceStatus');
+        status.style.display = 'block';
+        status.style.color = 'var(--text2)';
+        status.innerHTML = '<span class="loading"></span> Scanning directory...';
+
+        const formData = new FormData();
+        formData.append('path', path);
+        formData.append('layout', layout);
+        if (alias) formData.append('alias', alias);
+
+        try {
+            const resp = await fetch(`${API}/enrollment/sources/add`, { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                const s = data.stats;
+                status.innerHTML = `Scan complete: ${s.images_processed} images, ${s.faces_detected} faces, ${s.people_enrolled} identities`;
+                status.style.color = 'var(--green)';
+                loadSources();
+                loadStats();
+                document.getElementById('sourcePath').value = '';
+                document.getElementById('sourceAlias').value = '';
+            } else {
+                status.innerHTML = `Error: ${data.detail}`;
+                status.style.color = 'var(--red)';
+            }
+        } catch (err) {
+            status.innerHTML = `Error: ${err.message}`;
+            status.style.color = 'var(--red)';
+        }
+    }
+
+    async function rescanSource(sourceId) {
+        const status = document.getElementById('scanStatus');
+        status.style.display = 'block';
+        status.style.color = 'var(--text2)';
+        status.innerHTML = '<span class="loading"></span> Re-scanning source...';
+
+        try {
+            const resp = await fetch(`${API}/enrollment/sources/${sourceId}/scan`, { method: 'POST' });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                const s = data.stats;
+                status.innerHTML = `Re-scan complete: ${s.images_processed} new images, ${s.faces_detected} faces`;
+                status.style.color = 'var(--green)';
+                loadSources();
+                loadStats();
+            } else {
+                status.innerHTML = `Error: ${data.detail}`;
+                status.style.color = 'var(--red)';
+            }
+        } catch (err) {
+            status.innerHTML = `Error: ${err.message}`;
+            status.style.color = 'var(--red)';
+        }
+    }
+
+    async function loadSources() {
+        try {
+            const resp = await fetch(`${API}/enrollment/sources`);
+            const data = await resp.json();
+            const grid = document.getElementById('sourcesGrid');
+
+            if (data.sources.length === 0) {
+                grid.innerHTML = '<p style="color:var(--text2);padding:24px;">No source directories registered. Click "+ Add Source" to add image directories.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.sources.map(s => `
+                <div class="source-card">
+                    <h4>${s.alias || s.path.split('/').pop()}</h4>
+                    <div class="source-path">${s.path}</div>
+                    <div class="meta">
+                        Layout: <span class="badge badge-${s.layout === 'flat' ? 'auto' : 'high'}">${s.layout}</span><br>
+                        Images: ${s.image_count} &middot; Faces: ${s.face_count}<br>
+                        ${s.last_scanned ? 'Last scanned: ' + new Date(s.last_scanned).toLocaleString() : 'Not yet scanned'}
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn btn-secondary" onclick="rescanSource(${s.id})">Re-scan</button>
+                    </div>
+                </div>`).join('');
+        } catch (err) {
+            console.error('Failed to load sources:', err);
+        }
+    }
+
+    // Repository scan (default structured repo)
+    async function scanRepository() {
+        const status = document.getElementById('scanStatus');
+        status.style.display = 'block';
+        status.style.color = 'var(--text2)';
+        status.innerHTML = '<span class="loading"></span> Scanning default repository...';
+
+        try {
+            const resp = await fetch(`${API}/enrollment/scan`, { method: 'POST', body: new FormData() });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                const s = data.stats;
+                status.innerHTML = `Scan complete: ${s.images_processed} images, ${s.faces_detected} faces, ${s.people_enrolled} new people, ${s.images_failed} failed`;
+                status.style.color = 'var(--green)';
+                loadPeople();
+                loadStats();
+            } else {
+                status.innerHTML = `Error: ${data.detail}`;
+                status.style.color = 'var(--red)';
+            }
+        } catch (err) {
+            status.innerHTML = `Error: ${err.message}`;
+            status.style.color = 'var(--red)';
+        }
+    }
+
+    // Load people list
+    async function loadPeople() {
+        try {
+            const resp = await fetch(`${API}/admin/people?limit=200`);
+            const data = await resp.json();
+            const grid = document.getElementById('peopleGrid');
+
+            if (data.people.length === 0) {
+                grid.innerHTML = '<p style="color:var(--text2);padding:24px;">No people enrolled yet. Add source directories or scan the default repository.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.people.map(p => `
+                <div class="person-card">
+                    <h4>${p.name || p.person_id}</h4>
+                    <div class="meta">
+                        ID: ${p.person_id}<br>
+                        Images: ${p.image_count} &middot; Faces: ${p.face_count}
+                    </div>
+                </div>`).join('');
+        } catch (err) {
+            console.error('Failed to load people:', err);
+        }
+    }
+
+    // Load system stats
+    async function loadStats() {
+        try {
+            const resp = await fetch(`${API}/admin/health`);
+            const data = await resp.json();
+            document.getElementById('statPeople').textContent = data.stats.total_people;
+            document.getElementById('statFaces').textContent = data.stats.total_faces;
+            document.getElementById('statIndex').textContent = data.stats.index_size;
+            document.getElementById('statSources').textContent = data.stats.source_directories || 0;
+        } catch (err) {
+            console.error('Stats load failed:', err);
+        }
+    }
+
+    // ─── Live Camera Scan ─────────────────────────────────────
+
+    let cameraStream = null;
+    let cameraInterval = null;
+    let cameraScanning = false;
+
+    async function toggleCamera() {
+        const container = document.getElementById('cameraContainer');
+        const btn = document.getElementById('cameraBtn');
+
+        if (cameraStream) {
+            // Stop camera
+            stopCamera();
+            return;
+        }
+
+        // Start camera
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera access requires HTTPS or localhost.\n\nPlease open: http://localhost:8000');
+                return;
+            }
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+            });
+            const video = document.getElementById('cameraVideo');
+            video.srcObject = cameraStream;
+
+            container.classList.add('active');
+            btn.innerHTML = '&#x23F9; Stop Camera';
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-danger');
+
+            document.getElementById('cameraDot').classList.add('scanning');
+            document.getElementById('cameraStatus').textContent = 'Scanning...';
+
+            // Auto-scan every 3 seconds
+            cameraScanning = true;
+            cameraInterval = setInterval(() => {
+                if (cameraScanning) captureAndSearch();
+            }, 3000);
+
+            // First scan after 1 second (let camera warm up)
+            setTimeout(() => { if (cameraScanning) captureAndSearch(); }, 1000);
+
+        } catch (err) {
+            alert('Could not access camera: ' + err.message);
+        }
+    }
+
+    function stopCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+        }
+        if (cameraInterval) {
+            clearInterval(cameraInterval);
+            cameraInterval = null;
+        }
+        cameraScanning = false;
+
+        const container = document.getElementById('cameraContainer');
+        const btn = document.getElementById('cameraBtn');
+        container.classList.remove('active');
+        btn.innerHTML = '&#x1F4F7; Scan Now';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-secondary');
+
+        document.getElementById('cameraVideo').srcObject = null;
+        document.getElementById('cameraDot').classList.remove('scanning');
+    }
+
+    async function captureAndSearch() {
+        const video = document.getElementById('cameraVideo');
+        if (!video.srcObject || video.videoWidth === 0) return;
+
+        // Capture frame to canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        // Convert to blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+
+        document.getElementById('cameraStatus').textContent = 'Searching...';
+
+        const formData = new FormData();
+        formData.append('image', blob, 'camera_capture.jpg');
+        formData.append('top_k', '10');
+        formData.append('search_mode', 'image');
+
+        try {
+            const resp = await fetch(`${API}/face/search`, { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                drawCameraFaceBoxes(data.results, video);
+                displayCameraMatches(data);
+                document.getElementById('cameraStatus').textContent =
+                    data.faces_detected > 0
+                        ? `${data.faces_detected} face(s) found — ${data.processing_time_ms.toFixed(0)}ms`
+                        : 'No faces detected';
+            }
+        } catch (err) {
+            document.getElementById('cameraStatus').textContent = 'Search error: ' + err.message;
+        }
+    }
+
+    function drawCameraFaceBoxes(results, video) {
+        const canvas = document.getElementById('cameraOverlay');
+        canvas.width = video.clientWidth;
+        canvas.height = video.clientHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const scaleX = video.clientWidth / video.videoWidth;
+        const scaleY = video.clientHeight / video.videoHeight;
+
+        for (const face of results) {
+            const bb = face.bounding_box;
+            const color = FACE_COLORS[face.face_index % FACE_COLORS.length];
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(bb.x1 * scaleX, bb.y1 * scaleY, bb.width * scaleX, bb.height * scaleY);
+
+            const label = `Face ${face.face_index + 1}`;
+            ctx.font = '12px -apple-system, sans-serif';
+            const tw = ctx.measureText(label).width;
+            ctx.fillStyle = color;
+            ctx.fillRect(bb.x1 * scaleX, bb.y1 * scaleY - 18, tw + 8, 18);
+            ctx.fillStyle = '#fff';
+            ctx.fillText(label, bb.x1 * scaleX + 4, bb.y1 * scaleY - 5);
+        }
+    }
+
+    function displayCameraMatches(data) {
+        const grid = document.getElementById('cameraMatchGrid');
+
+        // Collect all image matches from all faces
+        let allMatches = [];
+        for (const face of data.results) {
+            if (face.image_matches) {
+                allMatches = allMatches.concat(face.image_matches);
+            }
+        }
+
+        if (allMatches.length === 0) {
+            if (data.faces_detected === 0) {
+                grid.innerHTML = '<p style="color:var(--text2);font-size:13px;grid-column:1/-1;">No face detected — point camera at a face</p>';
+            } else {
+                grid.innerHTML = '<p style="color:var(--text2);font-size:13px;grid-column:1/-1;">No matches found in the database</p>';
+            }
+            return;
+        }
+
+        // Sort by similarity descending and deduplicate
+        allMatches.sort((a, b) => b.similarity - a.similarity);
+        const seen = new Set();
+        const unique = [];
+        for (const m of allMatches) {
+            const key = m.absolute_path || m.image_path;
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(m);
+            }
+        }
+
+        grid.innerHTML = unique.slice(0, 12).map(m => {
+            const sim = m.similarity;
+            const statusClass = sim >= 0.55 ? 'high' : sim >= 0.40 ? 'possible' : sim >= 0.30 ? 'low' : 'none';
+            const pct = (sim * 100).toFixed(1);
+            const personLabel = m.person_name || m.person_id || 'Unknown';
+            const filePath = m.absolute_path || m.image_path;
+            const escapedPath = filePath.replace(/'/g, "\\'");
+            const imgUrl = `${API}/admin/image?path=${encodeURIComponent(filePath)}`;
+
+            return `
+                <div class="camera-match-card" onclick="openLightbox('${escapedPath}', '${personLabel.replace(/'/g, "\\'")}', '${pct}%', '${statusClass}')">
+                    <img src="${imgUrl}" alt="${personLabel}" onerror="this.style.display='none'">
+                    <div class="card-info">
+                        <div class="card-name">${personLabel}</div>
+                        <div class="card-score color-${statusClass}">${pct}%</div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    // ─── Image Preview Lightbox ─────────────────────────────────
+
+    function openLightbox(imagePath, name, score, statusClass) {
+        const overlay = document.getElementById('lightboxOverlay');
+        const img = document.getElementById('lightboxImg');
+        const nameEl = document.getElementById('lightboxName');
+        const pathEl = document.getElementById('lightboxPath');
+        const scoreEl = document.getElementById('lightboxScore');
+
+        img.src = `${API}/admin/image?path=${encodeURIComponent(imagePath)}`;
+        nameEl.textContent = name;
+        pathEl.textContent = imagePath;
+        scoreEl.textContent = `Similarity: ${score}`;
+        scoreEl.className = `lightbox-score color-${statusClass}`;
+
+        overlay.classList.remove('hidden');
+
+        // Close on Escape key
+        document.addEventListener('keydown', lightboxKeyHandler);
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxOverlay').classList.add('hidden');
+        document.getElementById('lightboxImg').src = '';
+        document.removeEventListener('keydown', lightboxKeyHandler);
+    }
+
+    function lightboxKeyHandler(e) {
+        if (e.key === 'Escape') closeLightbox();
+    }
+
+    // ─── Directory Picker ──────────────────────────────────────
+
+    function openDirPicker() {
+        const overlay = document.getElementById('dirPickerOverlay');
+        overlay.classList.remove('hidden');
+        dirPickerSelected = null;
+        document.getElementById('dirSelectedPath').textContent = 'No directory selected';
+        // Start from /Users which is browsable on macOS
+        browseTo('/Users');
+    }
+
+    function closeDirPicker() {
+        document.getElementById('dirPickerOverlay').classList.add('hidden');
+    }
+
+    function confirmDirSelection() {
+        if (dirPickerSelected) {
+            document.getElementById('sourcePath').value = dirPickerSelected;
+            closeDirPicker();
+        } else {
+            // Use current browsed path
+            document.getElementById('sourcePath').value = dirPickerPath;
+            closeDirPicker();
+        }
+    }
+
+    async function browseTo(path) {
+        if (!path || !path.trim()) return;
+        dirPickerPath = path;
+        dirPickerSelected = null;
+        const body = document.getElementById('dirPickerBody');
+        body.innerHTML = '<div class="dir-loading"><span class="loading"></span> Loading...</div>';
+        document.getElementById('dirSelectedPath').textContent = path;
+
+        try {
+            const resp = await fetch(`${API}/enrollment/browse?path=${encodeURIComponent(path)}`);
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                const msg = data.detail || 'Failed to browse directory';
+                body.innerHTML = `<div class="dir-loading" style="color:var(--red);">${msg}<br><small style="color:var(--text2);margin-top:8px;display:block;">Try typing a full path in the box above, e.g. /Users/yourname/Pictures</small></div>`;
+                return;
+            }
+
+            dirPickerPath = data.current_path;
+            document.getElementById('dirSelectedPath').textContent = data.current_path;
+            document.getElementById('dirQuickPath').value = data.current_path;
+
+            // Breadcrumb
+            renderBreadcrumb(data.current_path);
+
+            // Info bar
+            const info = document.getElementById('dirPickerInfo');
+            let infoHtml = `${data.image_count} image(s) here`;
+            if (data.subdirs_with_images > 0) {
+                infoHtml += ` &middot; ${data.subdirs_with_images} subfolder(s) with images`;
+            }
+            infoHtml += `<span class="suggested-layout">Suggested layout: <span class="badge badge-${data.suggested_layout === 'structured' ? 'high' : 'auto'}">${data.suggested_layout}</span></span>`;
+            info.innerHTML = infoHtml;
+
+            // Entries
+            let html = '';
+
+            // Parent directory link
+            if (data.parent_path) {
+                html += `
+                    <div class="dir-item" ondblclick="browseTo('${escPath(data.parent_path)}')" onclick="browseTo('${escPath(data.parent_path)}')">
+                        <span class="dir-icon">&#x2B06;</span>
+                        <span class="dir-name">..</span>
+                        <span class="dir-meta">Parent directory</span>
+                    </div>`;
+            }
+
+            // Directories first
+            const dirs = data.entries.filter(e => e.type === 'directory');
+            const images = data.entries.filter(e => e.type === 'image');
+
+            for (const d of dirs) {
+                html += `
+                    <div class="dir-item" ondblclick="browseTo('${escPath(d.path)}')" onclick="selectDir('${escPath(d.path)}', this)">
+                        <span class="dir-icon">&#x1F4C1;</span>
+                        <span class="dir-name">${d.name}</span>
+                        <span class="dir-meta">${d.image_count > 0 ? d.image_count + ' img' : ''}</span>
+                    </div>`;
+            }
+
+            // Show image files (non-clickable, just for context)
+            if (images.length > 0 && images.length <= 20) {
+                for (const f of images) {
+                    const size = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : (f.size / 1024).toFixed(0) + ' KB';
+                    html += `
+                        <div class="dir-item" style="opacity:0.6;cursor:default;">
+                            <span class="dir-icon">&#x1F5BC;</span>
+                            <span class="dir-name">${f.name}</span>
+                            <span class="dir-meta">${size}</span>
+                        </div>`;
+                }
+            } else if (images.length > 20) {
+                html += `
+                    <div class="dir-item" style="opacity:0.6;cursor:default;">
+                        <span class="dir-icon">&#x1F5BC;</span>
+                        <span class="dir-name">${images.length} image files</span>
+                        <span class="dir-meta"></span>
+                    </div>`;
+            }
+
+            if (dirs.length === 0 && images.length === 0) {
+                html = '<div class="dir-loading">This directory is empty</div>';
+            }
+
+            body.innerHTML = html;
+        } catch (err) {
+            body.innerHTML = `<div class="dir-loading" style="color:var(--red);">Failed to browse: ${err.message}</div>`;
+        }
+    }
+
+    function selectDir(path, el) {
+        // Remove selection from siblings
+        el.parentElement.querySelectorAll('.dir-item.selected').forEach(d => d.classList.remove('selected'));
+        el.classList.add('selected');
+        dirPickerSelected = path;
+        document.getElementById('dirSelectedPath').textContent = path;
+    }
+
+    function renderBreadcrumb(fullPath) {
+        const bc = document.getElementById('dirBreadcrumb');
+        const parts = fullPath.split('/').filter(Boolean);
+        let html = `<span class="crumb" onclick="browseTo('/')">/</span>`;
+
+        let accumulated = '';
+        for (let i = 0; i < parts.length; i++) {
+            accumulated += '/' + parts[i];
+            const isLast = i === parts.length - 1;
+            html += `<span class="sep">/</span>`;
+            if (isLast) {
+                html += `<span class="crumb current">${parts[i]}</span>`;
+            } else {
+                html += `<span class="crumb" onclick="browseTo('${escPath(accumulated)}')">${parts[i]}</span>`;
+            }
+        }
+        bc.innerHTML = html;
+    }
+
+    function escPath(p) {
+        return p.replace(/'/g, "\\'");
+    }
+
+    // ─── Threshold Filter ──────────────────────────────────────
+
+    function updateThreshold(val) {
+        matchThreshold = parseInt(val);
+        document.getElementById('thresholdValue').textContent = val + '%';
+        // Re-filter displayed results if we have them
+        if (lastSearchResults) {
+            displayResults(lastSearchResults);
+        }
+    }
+
+    function getFilteredMatches() {
+        if (!lastSearchResults) return [];
+        const paths = [];
+        const minSim = matchThreshold / 100;
+
+        for (const face of lastSearchResults.results) {
+            if (face.image_matches) {
+                for (const m of face.image_matches) {
+                    if (m.similarity >= minSim) {
+                        const p = m.absolute_path || m.image_path;
+                        if (p && !paths.includes(p)) paths.push(p);
+                    }
+                }
+            }
+            if (face.candidates) {
+                for (const c of face.candidates) {
+                    if (c.similarity >= minSim && c.top_image_matches) {
+                        for (const tim of c.top_image_matches) {
+                            const p = tim.absolute_path || tim.image_path;
+                            if (p && !paths.includes(p)) paths.push(p);
+                        }
+                    }
+                }
+            }
+        }
+        return paths;
+    }
+
+    function updateDownloadBar() {
+        const paths = getFilteredMatches();
+        const bar = document.getElementById('downloadBar');
+        const countEl = document.getElementById('downloadCount');
+        const btn = document.getElementById('downloadBtn');
+
+        if (paths.length > 0) {
+            bar.classList.add('visible');
+            countEl.textContent = paths.length;
+            btn.disabled = false;
+        } else {
+            bar.classList.remove('visible');
+        }
+    }
+
+    async function downloadMatches() {
+        const paths = getFilteredMatches();
+        if (paths.length === 0) {
+            alert('No matches to download.');
+            return;
+        }
+
+        const folderName = document.getElementById('downloadFolderName').value.trim() || 'matched_faces';
+        const btn = document.getElementById('downloadBtn');
+        btn.disabled = true;
+        btn.textContent = 'Preparing...';
+
+        try {
+            const formData = new FormData();
+            formData.append('paths', paths.join(','));
+            formData.append('folder_name', folderName);
+
+            const resp = await fetch(`${API}/face/download-matches`, { method: 'POST', body: formData });
+
+            if (!resp.ok) {
+                const err = await resp.json();
+                alert('Download failed: ' + (err.detail || 'Unknown error'));
+                return;
+            }
+
+            // Download the ZIP
+            const blob = await resp.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${folderName}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('Download error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '&#x2B07; Download ZIP';
+        }
+    }
+
+    // Init
+    loadStats();
+</script>
+</body>
+</html>
